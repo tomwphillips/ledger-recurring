@@ -1,3 +1,5 @@
+from datetime import date, datetime, time, timedelta
+import click
 import yaml
 from dateutil import rrule
 from marshmallow import Schema, fields, post_load
@@ -50,9 +52,16 @@ class RecurringTransactionSchema(Schema):
         return RecurringTransaction(**data)
 
 
-def main(config_file, output_file, after, before):
+@click.command()
+@click.argument("config_file", type=click.File("r"))
+@click.argument("output_file", type=click.File("w"))
+@click.argument("month", type=click.DateTime(formats=["%Y-%m"]))
+def main(config_file, output_file, month):
     config_schema = RecurringTransactionSchema(many=True)
     config = config_schema.load(yaml.safe_load(config_file))
+
+    after = month.replace(day=1)
+    before = after.replace(month=after.month + 1) - timedelta(days=1)
 
     ledger = []
     for recurring_transaction in config:
@@ -66,3 +75,7 @@ def main(config_file, output_file, after, before):
             ledger.append("")
 
     output_file.write("\n".join(ledger))
+
+
+if __name__ == "__main__":
+    main()

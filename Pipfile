@@ -7,6 +7,7 @@ name = "pypi"
 pyyaml = "*"
 python-dateutil = "*"
 marshmallow = "*"
+click = "*"
 
 [dev-packages]
 pytest = "*"

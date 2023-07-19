@@ -1,13 +1,10 @@
-import tempfile
-from datetime import date, datetime
-
+from click.testing import CliRunner
 from ledger_recurring import main
 
 
 def test_monthly_transaction(tmp_path):
-    config_file = tempfile.TemporaryFile()
-    config_file.write(
-        b"""
+    config_filename = "config.yaml"
+    config = """
 - name: mortgage
   rule:
     frequency: monthly
@@ -18,17 +15,27 @@ def test_monthly_transaction(tmp_path):
     - account: liabilities:mortgage
       amount: -1000
 """
-    )
-    config_file.seek(0)
+    output_filename = "output.ledger"
+    month = "2023-02"
 
-    output_file = tempfile.TemporaryFile("r+")
-    main(config_file, output_file, datetime(2023, 2, 1), datetime(2023, 2, 28))
-
-    output_file.seek(0)
-    assert (
-        output_file.read()
-        == """2023-02-03 mortgage
-\tassets:current\t1000
-\tliabilities:mortgage\t-1000
-"""
+    want = "\n".join(
+        [
+            "2023-02-03 mortgage",
+            "\tassets:current\t1000",
+            "\tliabilities:mortgage\t-1000",
+            "",
+        ]
     )
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        with open(config_filename, "w") as config_file:
+            config_file.write(config)
+
+        result = runner.invoke(main, [config_filename, output_filename, month])
+        assert result.exit_code == 0
+
+        with open(output_filename) as output_file:
+            got = output_file.read()
+
+        assert got == want
