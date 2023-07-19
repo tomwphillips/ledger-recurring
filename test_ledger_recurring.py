@@ -3,7 +3,7 @@ from click.testing import CliRunner
 from ledger_recurring import main
 
 
-def test_monthly_transaction(tmp_path):
+def test_monthly_transaction():
     config_filename = "config.yaml"
     config = """
 - name: mortgage
