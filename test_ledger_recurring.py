@@ -1,4 +1,5 @@
 from click.testing import CliRunner
+
 from ledger_recurring import main
 
 

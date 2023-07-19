@@ -1,4 +1,5 @@
-from datetime import date, datetime, time, timedelta
+from datetime import timedelta
+
 import click
 import yaml
 from dateutil import rrule
