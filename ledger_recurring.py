@@ -36,7 +36,7 @@ class RuleSchema(Schema):
 
 class PostingSchema(Schema):
     account = fields.String(required=True)
-    amount = fields.Decimal(required=True)
+    amount = fields.String(required=True)
 
     @post_load
     def make_posting(self, data, **kwargs):

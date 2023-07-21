@@ -12,9 +12,9 @@ def test_monthly_transaction():
     start_date: 2023-01-03
   postings:
     - account: assets:current
-      amount: 1000
+      amount: £1000
     - account: liabilities:mortgage
-      amount: -1000
+      amount: £-1000
 """
     output_filename = "output.ledger"
     month = "2023-02"
@@ -22,8 +22,8 @@ def test_monthly_transaction():
     want = "\n".join(
         [
             "2023-02-03 mortgage",
-            "\tassets:current\t1000",
-            "\tliabilities:mortgage\t-1000",
+            "\tassets:current\t£1000",
+            "\tliabilities:mortgage\t£-1000",
             "",
         ]
     )
