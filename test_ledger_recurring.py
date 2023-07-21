@@ -3,7 +3,7 @@ from click.testing import CliRunner
 from ledger_recurring import main
 
 
-def test_monthly_transaction():
+def test_monthly_transactions():
     config_filename = "config.yaml"
     config = """
 - name: mortgage
@@ -15,6 +15,15 @@ def test_monthly_transaction():
       amount: £1000
     - account: liabilities:mortgage
       amount: £-1000
+- name: water bill
+  rule:
+    frequency: monthly
+    start_date: 2023-01-10
+  postings:
+    - account: assets:current
+      amount: £-50
+    - account: expenses:bills
+      amount: £50
 """
     output_filename = "output.ledger"
     month = "2023-02"
@@ -24,6 +33,10 @@ def test_monthly_transaction():
             "2023-02-03 mortgage",
             "\tassets:current\t£1000",
             "\tliabilities:mortgage\t£-1000",
+            "",
+            "2023-02-10 water bill",
+            "\tassets:current\t£-50",
+            "\texpenses:bills\t£50",
             "",
         ]
     )
