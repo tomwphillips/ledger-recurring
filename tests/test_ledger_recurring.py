@@ -91,3 +91,62 @@ def test_amount_is_optional():
             got = output_file.read()
 
         assert got == want
+
+
+def test_count_occurrences():
+    config_filename = "config.yaml"
+    config = """
+- name: mortgage
+  rule:
+    frequency: monthly
+    start_date: 2023-01-03
+    count: 3
+  postings:
+    - account: assets:current
+      amount: £1000
+    - account: liabilities:mortgage
+"""
+    output_filename = "output.ledger"
+
+    month_last_occurence = "2023-03"
+    want_last_occurence = "\n".join(
+        [
+            "2023-03-03 mortgage",
+            "\tassets:current\t£1000",
+            "\tliabilities:mortgage",
+            "",
+        ]
+    )
+
+    runner = CliRunner()
+
+    with runner.isolated_filesystem():
+        with open(config_filename, "w") as config_file:
+            config_file.write(config)
+
+        result = runner.invoke(
+            main, [config_filename, output_filename, month_last_occurence]
+        )
+        assert result.exit_code == 0
+
+        with open(output_filename) as output_file:
+            got = output_file.read()
+
+        assert got == want_last_occurence
+
+    month_after_last_occurence = "2023-04"
+    want_after_last_occurence = ""
+
+    with runner.isolated_filesystem():
+        with open(config_filename, "w") as config_file:
+            config_file.write(config)
+
+        result = runner.invoke(
+            main, [config_filename, output_filename, month_after_last_occurence]
+        )
+        assert result.exit_code == 0
+
+        with open(output_filename) as output_file:
+            got = output_file.read()
+
+        assert got == want_after_last_occurence

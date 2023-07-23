@@ -27,12 +27,14 @@ class RecurringTransaction:
 class RuleSchema(Schema):
     frequency = fields.String(required=True)
     start_date = fields.Raw(required=True)  # pyyaml converts to datetime.date
+    count = fields.Integer()
 
     @post_load
     def make_rrule(self, data, **kwargs):
         return rrule.rrule(
             freq=getattr(rrule, data["frequency"].upper()),
             dtstart=data["start_date"],
+            count=data.get("count"),
         )
 
 
