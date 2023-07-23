@@ -1,0 +1,35 @@
+name: Tests
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 8 * * 1"
+
+jobs:
+  tests:
+    name: test ${{ matrix.py }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        py:
+          - "3.11"
+          - "3.10"
+          - "3.9"
+          - "3.8"
+        os:
+          - ubuntu-latest
+          - macos-latest
+    steps:
+      - name: Setup Python for Tox
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - uses: actions/checkout@v3
+      - name: Install Tox
+        run: python -m pip install tox
+      - name: Setup Python for tests ${{ matrix.py }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.py }}
+      - name: Run tox
+        run: tox run -e py${{ matrix.py }} -vv
