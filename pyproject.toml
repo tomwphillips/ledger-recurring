@@ -5,6 +5,19 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ledger-recurring"
 version = "0.0.1"
+authors = [
+  { name="Tom Phillips", email="tom@tomwphillips.co.uk" },
+]
+description = "A utility to generate recurring transactions for Ledger, a plain text accounting system."
+readme = "README.md"
+license = {file = "LICENSE.txt"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: The Unlicense (Unlicense)",
+    "Operating System :: OS Independent",
+    "Topic :: Office/Business :: Financial :: Accounting",
+]
+
 requires-python = ">=3.8"
 dependencies = [
     "click>=8.1.0",
@@ -15,6 +28,9 @@ dependencies = [
 
 [project.scripts]
 ledger-recurring = "ledger_recurring:main"
+
+[project.urls]
+repository = "https://github.com/tomwphillips/ledger-recurring"
 
 [tool.setuptools]
 py-modules = ["ledger_recurring"]
