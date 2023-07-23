@@ -7,12 +7,14 @@ from marshmallow import Schema, fields, post_load
 
 
 class Posting:
-    def __init__(self, account, amount):
+    def __init__(self, account, amount=None):
         self.account = account
         self.amount = amount
 
     def to_ledger_entry(self):
-        return f"\t{self.account}\t{self.amount}"
+        if self.amount:
+            return f"\t{self.account}\t{self.amount}"
+        return f"\t{self.account}"
 
 
 class RecurringTransaction:
@@ -36,7 +38,7 @@ class RuleSchema(Schema):
 
 class PostingSchema(Schema):
     account = fields.String(required=True)
-    amount = fields.String(required=True)
+    amount = fields.String()
 
     @post_load
     def make_posting(self, data, **kwargs):
