@@ -70,9 +70,9 @@ class RecurringTransactionSchema(Schema):
 
 @click.command()
 @click.argument("config_file", type=click.File("r"))
-@click.argument("output_file", type=click.File("w"))
 @click.argument("month", type=click.DateTime(formats=["%Y-%m"]))
-def main(config_file, output_file, month):
+@click.argument("output_file", type=click.File("w"), default="-")
+def main(config_file, month, output_file):
     config_schema = RecurringTransactionSchema(many=True)
     config = config_schema.load(yaml.safe_load(config_file))
 
