@@ -188,3 +188,49 @@ def test_last_day_of_the_month():
                 got = output_file.read()
 
             assert got == want
+
+
+def test_comments():
+    config_filename = "config.yaml"
+    config = """
+- name: mortgage
+  comment: |
+    line 1 comment
+    line 2 comment
+    line 3 comment
+  rule:
+    frequency: monthly
+    start_date: 2023-01-03
+  postings:
+    - account: assets:current
+      amount: £1000
+    - account: liabilities:mortgage
+      amount: £-1000
+"""
+    output_filename = "output.ledger"
+    month = "2023-02"
+
+    want = "\n".join(
+        [
+            "2023-02-03 mortgage",
+            "\t; line 1 comment",
+            "\t; line 2 comment",
+            "\t; line 3 comment",
+            "\tassets:current\t£1000",
+            "\tliabilities:mortgage\t£-1000",
+            "",
+        ]
+    )
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        with open(config_filename, "w") as config_file:
+            config_file.write(config)
+
+        result = runner.invoke(main, [config_filename, output_filename, month])
+        assert result.exit_code == 0
+
+        with open(output_filename) as output_file:
+            got = output_file.read()
+
+        assert got == want

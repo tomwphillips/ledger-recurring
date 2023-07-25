@@ -18,10 +18,18 @@ class Posting:
 
 
 class RecurringTransaction:
-    def __init__(self, name, rule, postings):
+    def __init__(self, name, rule, postings, comment=None):
         self.name = name
         self.rule = rule
         self.postings = postings
+        self.comment = comment
+
+    def to_ledger_comment(self):
+        return (
+            [f"\t; {line}" for line in self.comment.splitlines()]
+            if self.comment
+            else []
+        )
 
 
 class RuleSchema(Schema):
@@ -53,6 +61,7 @@ class RecurringTransactionSchema(Schema):
     name = fields.String(required=True)
     rule = fields.Nested(RuleSchema, required=True)
     postings = fields.List(fields.Nested(PostingSchema), required=True)
+    comment = fields.String()
 
     @post_load
     def make_recurring_transaction(self, data, **kwargs):
@@ -78,6 +87,7 @@ def main(config_file, output_file, month):
         dates = recurring_transaction.rule.between(after, before, inc=True)
         for date in dates:
             ledger.append(f"{date.date()} {recurring_transaction.name}")
+            ledger.extend(recurring_transaction.to_ledger_comment())
             ledger.extend(postings)
             ledger.append("")
 
