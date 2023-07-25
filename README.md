@@ -29,6 +29,16 @@ Specify your recurring transactions in a file like `recurring.yaml`:
     - account: assets:bills
       amount: £-45
     - account: expenses:bills
+
+- name: Savings
+  rule:
+    frequency: monthly
+    start_date: 2023-01-30
+    by_month_day: -1
+  postings:
+    - account: assets:current
+      amount: £-100
+    - account: expenses:savings
 ```
 
 Then generate the Ledger file for a given month:
@@ -44,6 +54,10 @@ $ cat postings.ledger
 2023-03-09 Yorkshire Water
     assets:bills    £-45
     expenses:bills
+
+2023-03-31 Savings
+    assets:current  £-100
+    expenses:savings
 ```
 
 

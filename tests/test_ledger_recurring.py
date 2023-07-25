@@ -150,3 +150,41 @@ def test_count_occurrences():
             got = output_file.read()
 
         assert got == want_after_last_occurence
+
+
+def test_last_day_of_the_month():
+    config_filename = "config.yaml"
+    config = """
+- name: savings
+  rule:
+    frequency: monthly
+    start_date: 2023-01-28
+    by_month_day: -1
+  postings:
+    - account: assets:current
+      amount: £100
+    - account: assets:savings
+"""
+    output_filename = "output.ledger"
+    month = "2023-02"
+
+    tests = [
+        ("2023-02", "2023-02-28 savings\n\tassets:current\t£100\n\tassets:savings\n"),
+        ("2023-03", "2023-03-31 savings\n\tassets:current\t£100\n\tassets:savings\n"),
+        ("2023-04", "2023-04-30 savings\n\tassets:current\t£100\n\tassets:savings\n"),
+    ]
+
+    runner = CliRunner()
+
+    for month, want in tests:
+        with runner.isolated_filesystem():
+            with open(config_filename, "w") as config_file:
+                config_file.write(config)
+
+            result = runner.invoke(main, [config_filename, output_filename, month])
+            assert result.exit_code == 0
+
+            with open(output_filename) as output_file:
+                got = output_file.read()
+
+            assert got == want
