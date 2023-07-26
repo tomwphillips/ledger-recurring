@@ -236,3 +236,36 @@ def test_output_to_file_instead_of_stdout():
             got = output_file.read()
 
         assert got == want
+
+
+def test_pending_transaction_state():
+    config_filename = "config.yaml"
+    config = """
+- name: mortgage
+  rule:
+    frequency: monthly
+    start_date: 2023-01-03
+  postings:
+    - account: assets:current
+      amount: £1000
+    - account: liabilities:mortgage
+      amount: £-1000
+"""
+    month = "2023-02"
+    want = "\n".join(
+        [
+            "2023-02-03 ! mortgage",
+            "\tassets:current\t£1000",
+            "\tliabilities:mortgage\t£-1000",
+            "",
+        ]
+    )
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        with open(config_filename, "w") as config_file:
+            config_file.write(config)
+
+        result = runner.invoke(main, [config_filename, month, "-s", "!"])
+        assert result.exit_code == 0
+        assert result.output == want

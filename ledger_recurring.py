@@ -72,7 +72,14 @@ class RecurringTransactionSchema(Schema):
 @click.argument("config_file", type=click.File("r"))
 @click.argument("month", type=click.DateTime(formats=["%Y-%m"]))
 @click.argument("output_file", type=click.File("w"), default="-")
-def main(config_file, month, output_file):
+@click.option(
+    "-s",
+    "--state",
+    "transaction_state",
+    type=click.Choice(["!", "*", None]),
+    default=None,
+)
+def main(config_file, month, output_file, transaction_state=None):
     config_schema = RecurringTransactionSchema(many=True)
     config = config_schema.load(yaml.safe_load(config_file))
 
@@ -86,7 +93,12 @@ def main(config_file, month, output_file):
         ]
         dates = recurring_transaction.rule.between(after, before, inc=True)
         for date in dates:
-            ledger.append(f"{date.date()} {recurring_transaction.name}")
+            top_line = (
+                f"{date.date()}"
+                + (f" {transaction_state}" if transaction_state else "")
+                + f" {recurring_transaction.name}"
+            )
+            ledger.append(top_line)
             ledger.extend(recurring_transaction.to_ledger_comment())
             ledger.extend(postings)
             ledger.append("")
