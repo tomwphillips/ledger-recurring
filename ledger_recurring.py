@@ -84,7 +84,11 @@ def main(config_file, month, output_file, transaction_state=None):
     config = config_schema.load(yaml.safe_load(config_file))
 
     after = month.replace(day=1)
-    before = after.replace(month=after.month + 1) - timedelta(days=1)
+
+    if after.month == 12:
+        before = after.replace(year=after.year + 1, month=1, day=1) - timedelta(days=1)
+    else:
+        before = after.replace(month=after.month + 1) - timedelta(days=1)
 
     ledger = []
     for recurring_transaction in config:

@@ -269,3 +269,37 @@ def test_pending_transaction_state():
         result = runner.invoke(main, [config_filename, month, "-s", "!"])
         assert result.exit_code == 0
         assert result.output == want
+
+
+def test_monthly_transactions_in_december():
+    config_filename = "config.yaml"
+    config = """
+- name: mortgage
+  rule:
+    frequency: monthly
+    start_date: 2023-01-03
+  postings:
+    - account: assets:current
+      amount: £1000
+    - account: liabilities:mortgage
+      amount: £-1000
+"""
+    month = "2023-12"
+
+    want = "\n".join(
+        [
+            "2023-12-03 mortgage",
+            "\tassets:current\t£1000",
+            "\tliabilities:mortgage\t£-1000",
+            "",
+        ]
+    )
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        with open(config_filename, "w") as config_file:
+            config_file.write(config)
+
+        result = runner.invoke(main, [config_filename, month])
+        assert result.exit_code == 0
+        assert result.output == want
